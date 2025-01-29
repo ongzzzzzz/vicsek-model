@@ -266,3 +266,47 @@ function draw() {
     draw_graph();
     update_noise_vs_order();
 }
+
+function get_noise_vs_v_avg() {
+    let noise_values = [];
+    let v_avg_values = [];
+
+    for (let n = 0; n <= 2 * Math.PI; n += 0.1) {
+        noise = n;
+        for (let i = 0; i < 500; i++) { // Run the simulation for some steps to stabilize
+            for (const particle of particles) {
+                particle.update();
+                particle.move();
+            }
+        }
+        calculate_v_avg();
+        noise_values.push(n);
+        v_avg_values.push(v_avg);
+    }
+
+    console.log('done!');
+    console.log(noise_values);
+    console.log(v_avg_values);
+}
+
+function get_r_vs_v_avg() {
+    let r_values = [];
+    let v_avg_values = [];
+
+    for (let radius = 0; radius <= 100; radius += 2) {
+        r = radius;
+        for (let i = 0; i < 500; i++) { // Run the simulation for some steps to stabilize
+            for (const particle of particles) {
+                particle.update();
+                particle.move();
+            }
+        }
+        calculate_v_avg();
+        r_values.push(radius);
+        v_avg_values.push(v_avg);
+    }
+
+    console.log('done!');
+    console.log(r_values);
+    console.log(v_avg_values);
+}
