@@ -2,9 +2,9 @@ let canvas;
 const dt = 0.001;
 
 let N = 500;
-let speed = 3000;
+let speed = 1000;
 let r = 20;
-let noise = 2*Math.PI * 0.01;
+let noise = Math.PI * 0.01;
 
 let particles = [];
 let v_avg_x, v_avg_y, v_avg;
@@ -29,6 +29,11 @@ class Particle {
         let avgTheta = 0;
         let count = 0;
 
+        let avgX = 0;
+        let avgY = 0;
+        let separationX = 0;
+        let separationY = 0;
+
         for (const particle of particles) {
             const dx = particle.x - this.x;
             const dy = particle.y - this.y;
@@ -36,13 +41,29 @@ class Particle {
 
             if (distanceSq < r*r) { // interaction radius
                 avgTheta += particle.theta;
+                avgX += particle.x;
+                avgY += particle.y;
+
+                if (distanceSq < 3*this.size*3*this.size) { // separation radius
+                    separationX += dx;
+                    separationY += dy;
+                }
                 count++;
             }
         }
 
         if (count > 0) {
             avgTheta /= count;
-            this.theta = avgTheta + random(-noise/2, noise/2); // adding some noise
+            avgX /= count;
+            avgY /= count;
+
+            // // alignment, cohesion, and separation
+            // let headingX = r*Math.cos(avgTheta) + (avgX - this.x) - 0.5*separationX;
+            // let headingY = r*Math.sin(avgTheta) + (avgY - this.y) - 0.5*separationY;
+            // this.theta = Math.atan2(headingY, headingX) + random(-noise, noise);
+
+            // alignment only
+            this.theta = avgTheta + random(-noise, noise); // adding some noise
         }
     }
 
@@ -71,6 +92,7 @@ class Particle {
         pop();
     }
 }
+
 
 function setup() {
     canvas = createCanvas(windowWidth, windowHeight);
@@ -309,4 +331,10 @@ function get_r_vs_v_avg() {
     console.log('done!');
     console.log(r_values);
     console.log(v_avg_values);
+}
+
+function mousePressed() {
+    if (mouseY < sim_height) { // Ensure clicks are within the simulation area
+        particles.push(new Particle(mouseX, mouseY, speed, random(2 * Math.PI)));
+    }
 }
